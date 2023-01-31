@@ -1,0 +1,50 @@
+[tool.poetry]
+name = "pitchmark"
+version = "0.0.1"
+description = "Exploring golf shot strategy."
+authors = ["Istvan Kleijn"]
+license = "MIT"
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.11"
+
+[tool.poetry.group.dev.dependencies]
+pytest = "^7.2.1"
+pytest-cov = "^4.0.0"
+myst-nb = "^0.17.1"
+sphinx-autoapi = "^2.0.1"
+sphinx-rtd-theme = "^1.1.1"
+python-semantic-release = "^7.33.0"
+flakeheaven = "^3.2.1"
+flake8-bugbear = "^23.1.20"
+
+[build-system]
+requires = ["poetry-core>=1.0.0"]
+build-backend = "poetry.core.masonry.api"
+
+[tool.semantic_release]
+version_variable = "pyproject.toml:version" # version location
+version_source = "tag"                      # get the current version from latest tag matching vX.Y.Z
+commit_version_number = true                # write version even though it is read from tags
+branch = "main"                             # branch to make releases of
+changelog_file = "CHANGELOG.md"             # changelog file
+build_command = "poetry build"              # build dists
+dist_path = "dist/"                         # where to put dists
+upload_to_release = true                    # auto-create GitHub release
+upload_to_pypi = false                      # don't auto-upload to PyPI
+remove_dist = false                         # don't remove dists
+patch_without_tag = true                    # patch release by default
+major_on_zero = false                       # do not bump to 1.0.0 automatically
+
+[tool.flakeheaven]
+format = "grouped"                          # make output nice
+show_source = true                          # show line of source code in output
+
+[tool.flakeheaven.plugins]
+pyflakes = ["+*"]
+pycodestyle = ["+*", "-E203", "-W503"]
+flake8-bugbear = ["+*", "+B950"]
+
+[tool.flakeheaven.exceptions."src/pitchmark/__init__.py"]
+pyflakes = ["-F401"]
