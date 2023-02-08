@@ -8,6 +8,8 @@ readme = "README.md"
 
 [tool.poetry.dependencies]
 python = "^3.11"
+shapely = "^2.0.1"
+osmium = "^3.6.0"
 
 [tool.poetry.group.dev.dependencies]
 pytest = "^7.2.1"
@@ -18,6 +20,7 @@ sphinx-rtd-theme = "^1.1.1"
 python-semantic-release = "^7.33.0"
 flakeheaven = "^3.2.1"
 flake8-bugbear = "^23.1.20"
+jupyter = "^1.0.0"
 
 [build-system]
 requires = ["poetry-core>=1.0.0"]
@@ -46,5 +49,5 @@ pyflakes = ["+*"]
 pycodestyle = ["+*", "-E203", "-W503"]
 flake8-bugbear = ["+*", "+B950"]
 
-[tool.flakeheaven.exceptions."src/pitchmark/__init__.py"]
+[tool.flakeheaven.exceptions."*/__init__.py"]
 pyflakes = ["-F401"]
