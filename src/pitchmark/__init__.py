@@ -7,4 +7,5 @@ __version__ = version("pitchmark")
 
 
 # populate package namespace
-from pitchmark import course, geom, hole
+from pitchmark.course import Course
+from pitchmark.hole import Hole

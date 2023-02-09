@@ -50,3 +50,5 @@ class Course:
                 course.water.append(polygon_from_geojson(geom_string))
             if properties.get("natural") == "wood":
                 course.woods.append(polygon_from_geojson(geom_string))
+
+        return course

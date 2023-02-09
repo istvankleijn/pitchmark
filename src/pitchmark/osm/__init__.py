@@ -5,4 +5,4 @@ from importlib.metadata import version
 
 __version__ = version("pitchmark")
 
-from pitchmark.osm import osm
+from pitchmark.osm.osm import *
