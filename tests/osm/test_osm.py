@@ -1,10 +1,6 @@
-from pathlib import Path
-
 import osmium
 
 import pitchmark.osm
-
-from fixtures import augusta_national
 
 
 def test_GolfHandler_init():
