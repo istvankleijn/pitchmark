@@ -22,4 +22,6 @@ Interested in contributing? Check out the contributing guidelines. Please note t
 
 ## Credits
 
+The test suite includes raw map data from [OpenStreetMap](https://www.openstreetmap.org/copyright).
+
 `pitchmark` was created with [`cookiecutter`](https://cookiecutter.readthedocs.io/en/latest/) and the `py-pkgs-cookiecutter` [template](https://github.com/py-pkgs/py-pkgs-cookiecutter).
