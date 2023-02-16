@@ -10,6 +10,7 @@ import shapely
 
 from pitchmark.geom import polygon_from_geojson
 from pitchmark.hole import Hole
+from pitchmark.plotting import chart_course
 
 
 @dataclass
@@ -145,3 +146,6 @@ class Course:
                 woods.append(polygon_from_geojson(geom_string))
 
         return cls(holes, greens, tees, fairways, bunkers, rough, water, woods)
+
+    def chart(self):
+        return chart_course(self.gdf)
