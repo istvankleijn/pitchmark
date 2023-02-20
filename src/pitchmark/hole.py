@@ -15,7 +15,7 @@ class Hole:
     path: shapely.LineString | None = None
     gdf: gpd.GeoDataFrame | None = field(default=None, repr=False)
 
-    def chart(selfj, **kwargs):
+    def chart(self, **kwargs):
         return (
             chart_course(self.gdf, **kwargs)
             .properties(title=f"{self.hole_number} - {self.name}")

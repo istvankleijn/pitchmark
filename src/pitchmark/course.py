@@ -114,6 +114,7 @@ class Course:
         if self.proj_string is not None:
             self.gdf = course_gdf.to_crs(self.proj_string)
             self.populate_hole_gdfs()
+            self.trim_to_features_in_play()
         else:
             self.gdf = course_gdf
 
@@ -197,3 +198,10 @@ class Course:
             )
             mask = self.mask_hole(hole_path, **kwargs)
             hole.gdf = self.gdf.clip(mask)
+
+    def trim_to_features_in_play(self):
+        indices_in_play = pd.concat(
+            [hole.gdf for hole in self.holes],
+        ).index.unique()
+        in_play = self.gdf.iloc[indices_in_play]
+        self.gdf = in_play
