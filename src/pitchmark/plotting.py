@@ -1,18 +1,21 @@
 import altair as alt
 
 
+_palette = {
+    "water": "RoyalBlue",
+    "sand": "Khaki",
+    "green": "Aquamarine",
+    "short_grass": "LawnGreen",
+    "woods": "ForestGreen",
+    "long_grass": "LimeGreen",
+}
+
+
 def chart_course(geodataframe, *, mode="ground_cover", tooltip=True):
     match mode:
         case "ground_cover":
-            _domain = ["water", "sand", "green", "short_grass", "woods", "long_grass"]
-            _range = [
-                "RoyalBlue",
-                "Khaki",
-                "PaleGreen",
-                "Chartreuse",
-                "ForestGreen",
-                "LimeGreen",
-            ]
+            _domain = list(_palette.keys())
+            _range = list(_palette.values())
         case _:
             raise ValueError(f"{mode=} not implemented")
 
@@ -33,6 +36,5 @@ def chart_course(geodataframe, *, mode="ground_cover", tooltip=True):
             tooltip=tooltip,
         )
         .project(type="identity", reflectY=True)
-        .configure_legend(disable=True)
     )
     return course_chart

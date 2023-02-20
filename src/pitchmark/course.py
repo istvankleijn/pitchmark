@@ -1,11 +1,11 @@
 from dataclasses import dataclass, field
-import itertools
 import json
 import operator
 import warnings
 
 import geopandas as gpd
 import pandas as pd
+import pyproj
 import shapely
 
 from pitchmark.geom import polygon_from_geojson
@@ -26,7 +26,8 @@ class Course:
     water: list[shapely.Polygon] = field(default_factory=list)
     woods: list[shapely.Polygon] = field(default_factory=list)
     proj_string: str | None = field(init=False)
-    gdf: gpd.GeoDataFrame = field(init=False)
+    transformer_to_local: pyproj.Transformer | None = field(init=False, repr=False)
+    gdf: gpd.GeoDataFrame = field(init=False, repr=False)
 
     def __post_init__(self):
         self.holes.sort(key=operator.attrgetter("hole_number"))
@@ -34,6 +35,9 @@ class Course:
         try:
             lon_0, lat_0 = self.holes[0].path.coords[0]
             self.proj_string = f"+proj=tmerc +{lon_0=} +{lat_0=} +ellps=WGS84 +units=yd"
+            self.transformer_to_local = pyproj.Transformer.from_crs(
+                "EPSG:4326", self.proj_string, always_xy=True
+            )
         except IndexError:
             warnings.warn(
                 "No first tee present, could not construct projection string."
@@ -106,9 +110,10 @@ class Course:
                 ]
             ],
             crs="EPSG:4326",  # WGS84 in longitude/latitude (degrees)
-        )
+        ).explode(ignore_index=True)
         if self.proj_string is not None:
             self.gdf = course_gdf.to_crs(self.proj_string)
+            self.populate_hole_gdfs()
         else:
             self.gdf = course_gdf
 
@@ -147,5 +152,48 @@ class Course:
 
         return cls(holes, greens, tees, fairways, bunkers, rough, water, woods)
 
-    def chart(self):
-        return chart_course(self.gdf)
+    def chart(self, **kwargs):
+        return chart_course(self.gdf, **kwargs).configure_legend(disable=True)
+
+    def mask_hole(
+        self,
+        hole_path,
+        *,
+        tee_buffer=10.0,
+        fairway_buffer=20.0,
+        green_buffer=30.0,
+        approach_buffer=50.0,
+    ):
+        fairways = self.gdf[
+            (self.gdf.name == "fairway")
+            & (self.gdf["geometry"].apply(shapely.intersects, args=(hole_path,)))
+        ]
+        green = self.gdf[
+            (self.gdf.name == "green")
+            & (self.gdf["geometry"].apply(shapely.intersects, args=(hole_path,)))
+        ]
+        shot_locations = [shapely.Point(hole_path.coords[0]).buffer(tee_buffer)] + [
+            shapely.buffer(shapely.Point(x), approach_buffer)
+            for x in hole_path.coords[1:]
+        ]
+        shot_connectors = []
+        for x, y in zip(shot_locations[:-1], shot_locations[1:]):
+            mp = shapely.MultiPolygon([x, y])
+            shot_connectors.append(mp.convex_hull)
+        shots_envelope = shapely.unary_union(shot_connectors)
+        mask = shapely.unary_union(
+            (
+                fairways.unary_union.buffer(fairway_buffer),
+                green.unary_union.buffer(green_buffer),
+                shots_envelope,
+            )
+        )
+        return mask
+
+    def populate_hole_gdfs(self, **kwargs):
+        for hole in self.holes:
+            hole_path = shapely.ops.transform(
+                self.transformer_to_local.transform, hole.path
+            )
+            mask = self.mask_hole(hole_path, **kwargs)
+            hole.gdf = self.gdf.clip(mask)
