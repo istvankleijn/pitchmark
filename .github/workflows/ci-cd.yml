@@ -39,9 +39,6 @@ jobs:
 
       - name: Install package
         run: poetry install
-    
-      - name: Lint with flakeheaven
-        run: poetry run flakeheaven lint ./src/ ./tests/
 
       - name: Test with pytest
         run: poetry run pytest tests/ --cov=pitchmark --cov-branch --cov-report=xml
@@ -49,7 +46,10 @@ jobs:
       - name: Use Codecov to track coverage
         uses: codecov/codecov-action@v3
         with:
-          files: ./coverage.xml   # coverage report
+          files: ./coverage.xml   # coverage report          
+    
+      - name: Lint with flakeheaven
+        run: poetry run flakeheaven lint ./src/ ./tests/
 
       - name: Build documentation
         run: poetry run make html --directory docs/

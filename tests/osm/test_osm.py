@@ -10,9 +10,9 @@ def test_GolfHandler_init():
     assert handler.feature_collection == {"type": "FeatureCollection", "features": []}
 
 
-def test_GolfHandler_usage(augusta_national):
+def test_GolfHandler_usage(augusta_national_path):
     handler = pitchmark.osm.GolfHandler()
-    handler.apply_file(augusta_national)
+    handler.apply_file(augusta_national_path)
     features = handler.feature_collection["features"]
     assert len(features) == 248
     azalea = None

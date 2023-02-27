@@ -1,3 +1,4 @@
+import altair as alt
 import pytest
 import shapely
 
@@ -23,6 +24,7 @@ def test_Hole_init(args):
             hole = pitchmark.Hole(*args)
         hole = pitchmark.Hole(0)
 
+    assert hole.gdf is None
     try:
         name = args[1]
     except IndexError:
@@ -33,3 +35,8 @@ def test_Hole_init(args):
     except IndexError:
         path = None
     assert hole.path == path
+
+
+def test_Hole_chart(azalea):
+    chart = azalea.chart()
+    assert isinstance(chart, alt.Chart)
