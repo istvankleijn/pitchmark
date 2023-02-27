@@ -21,6 +21,8 @@ def chart_course(geodataframe, *, mode="ground_cover", tooltip=True):
 
     if tooltip is True:
         tooltip = ["name", "ground_cover", "course_area"]
+    elif tooltip in (False, None):
+        tooltip = alt.value(None)
 
     course_chart = (
         alt.Chart(geodataframe.sort_values(by=mode, ascending=False))
