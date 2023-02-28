@@ -13,6 +13,9 @@ osmium = "^3.6.0"
 geopandas = "^0.12.2"
 pandas = "^1.5.3"
 altair = "^4.2.2"
+laspy = "^2.4.1"
+laszip = "^0.2.2"
+pyproj = "^3.4.1"
 
 [tool.poetry.group.dev.dependencies]
 pytest = "^7.2.1"
