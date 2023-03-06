@@ -7,7 +7,7 @@ license = "MIT"
 readme = "README.md"
 
 [tool.poetry.dependencies]
-python = "^3.11"
+python = "^3.10"
 shapely = "^2.0.1"
 osmium = "^3.6.0"
 geopandas = "^0.12.2"

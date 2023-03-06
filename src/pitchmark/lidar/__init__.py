@@ -1,4 +1,4 @@
-"""A subpackage for parsing LiDar files."""
+"""A subpackage for parsing LiDAR files."""
 
 # read version from installed package
 from importlib.metadata import version
