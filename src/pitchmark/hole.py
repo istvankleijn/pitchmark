@@ -14,6 +14,7 @@ class Hole:
     name: str = ""
     path: shapely.LineString | None = None
     gdf: gpd.GeoDataFrame | None = field(default=None, repr=False)
+    mesh: gpd.GeoDataFrame | None = field(default=None, repr=False)
 
     def chart(self, **kwargs):
         return (
