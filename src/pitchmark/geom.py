@@ -103,5 +103,5 @@ def gdf_from_mesh(mesh, crs=None):
     gdf["slope_heading"] = np.where(
         gdf["slope_heading"] < 0, gdf["slope_heading"] + 360, gdf["slope_heading"]
     )
-    gdf["slope_grade"] = 10.0 * np.sqrt(1.0 - gdf["normal_z"] ** 2)
+    gdf["slope_grade"] = 100.0 * np.sqrt(1.0 - gdf["normal_z"] ** 2)
     return gdf
