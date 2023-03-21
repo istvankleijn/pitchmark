@@ -86,7 +86,7 @@ def simplified_mesh(triangles, *, merge_close=0.25, smooth_iters=10):
     return mesh
 
 
-def gdf_from_mesh(mesh):
+def gdf_from_mesh(mesh, crs=None):
     """
     Construct a GeoDataFrame from an Open3D TriangleMesh.
     """
@@ -96,9 +96,12 @@ def gdf_from_mesh(mesh):
     centroids = np.array(
         [sum(np.array(triangle.exterior.coords[:-1])) / 3 for triangle in triangles]
     )
-    gdf = gpd.GeoDataFrame(geometry=triangles)
+    gdf = gpd.GeoDataFrame(geometry=triangles, crs=crs)
     gdf[["x", "y", "z"]] = centroids
     gdf[["normal_x", "normal_y", "normal_z"]] = normals
-    gdf["angle"] = np.arctan(gdf["normal_y"] / gdf["normal_x"])
-    gdf["grade"] = np.sqrt(1.0 - gdf["normal_z"] ** 2)
+    gdf["slope_heading"] = np.degrees(np.arctan2(gdf["normal_x"], gdf["normal_y"]))
+    gdf["slope_heading"] = np.where(
+        gdf["slope_heading"] < 0, gdf["slope_heading"] + 360, gdf["slope_heading"]
+    )
+    gdf["slope_grade"] = 10.0 * np.sqrt(1.0 - gdf["normal_z"] ** 2)
     return gdf

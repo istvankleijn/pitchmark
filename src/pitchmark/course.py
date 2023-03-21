@@ -244,7 +244,8 @@ class Course:
         ground = laspy.read(ground_path)
         logging.info(f"Populating hole meshes from {ground_path}:")
         ground_crs = ground.header.parse_crs()
-        transformer = pyproj.Transformer.from_crs(ground_crs, self.gdf.crs)
+        local_crs = self.gdf.crs
+        transformer = pyproj.Transformer.from_crs(ground_crs, local_crs)
 
         for hole in self.holes:
             logging.info(f"Preparing hole {hole.hole_number}...")
@@ -269,5 +270,5 @@ class Course:
                 hole_triangles, merge_close=merge_close, smooth_iters=smooth_iters
             )
             logging.info("Aggregating dataframe...")
-            hole.mesh = gdf_from_mesh(mesh)
+            hole.mesh = gdf_from_mesh(mesh, crs=local_crs)
         logging.info("Done!")
