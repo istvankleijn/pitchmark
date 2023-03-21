@@ -7,12 +7,17 @@ license = "MIT"
 readme = "README.md"
 
 [tool.poetry.dependencies]
-python = "^3.11"
+python = "^3.10"
 shapely = "^2.0.1"
 osmium = "^3.6.0"
 geopandas = "^0.12.2"
 pandas = "^1.5.3"
 altair = "^4.2.2"
+laspy = "^2.4.1"
+laszip = "^0.2.2"
+pyproj = "^3.4.1"
+open3d = "0.16.0"
+numpy = "^1.24.2"
 
 [tool.poetry.group.dev.dependencies]
 pytest = "^7.2.1"

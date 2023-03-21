@@ -1,14 +1,22 @@
 from dataclasses import dataclass, field
 import json
+import logging
 import operator
 import warnings
 
 import geopandas as gpd
+import laspy
 import pandas as pd
 import pyproj
 import shapely
 
-from pitchmark.geom import polygon_from_geojson
+from pitchmark.geom import (
+    delaunay3d,
+    gdf_from_mesh,
+    polygon_from_geojson,
+    prepared_shell,
+    simplified_mesh,
+)
 from pitchmark.hole import Hole
 from pitchmark.plotting import chart_course
 
@@ -40,7 +48,8 @@ class Course:
             )
         except IndexError:
             warnings.warn(
-                "No first tee present, could not construct projection string."
+                "No first tee present, could not construct projection string.",
+                stacklevel=2,
             )
             self.proj_string = None
         data = {
@@ -205,3 +214,61 @@ class Course:
         ).index.unique()
         in_play = self.gdf.iloc[indices_in_play]
         self.gdf = in_play
+
+    def populate_hole_meshes(
+        self, ground_path, *, buffer_distance=1.0, merge_close=0.25, smooth_iters=10
+    ):
+        """
+        Read a LAS/LAZ file with an elevation point cloud, construct 3D triangle meshes,
+        smoothen the mesh, and add mesh info to each hole.
+
+        Parameters:
+        -----------
+        ground_path: pathlib.Path
+            Location of the point cloud data file. Must contain ground level data and
+            is assumed to extend to include the whole course. It is recommended to pre-
+            process raw files to extract LAS data classified as "ground" and if required
+            merge multiple files into one before reading this.
+        buffer_distance: float, default 1.0
+            Extent by which to enlarge the area defined by the hole geometry. Points in
+            the point cloud are included if they are inside the buffer of the hole.
+        merge_close: float, default 0.25
+            Neighbouring points closer together than this distance are merged together.
+        smooth_iters: int, default 10
+            Number of times to perform the smoothening algorithm.
+
+        See also:
+        ---------
+        lidar.las.clip_to_geoseries
+        """
+        ground = laspy.read(ground_path)
+        logging.info(f"Populating hole meshes from {ground_path}:")
+        ground_crs = ground.header.parse_crs()
+        local_crs = self.gdf.crs
+        transformer = pyproj.Transformer.from_crs(ground_crs, local_crs)
+
+        for hole in self.holes:
+            logging.info(f"Preparing hole {hole.hole_number}...")
+            masked_area_cloud = prepared_shell(
+                hole.gdf.geometry,
+                distance=buffer_distance,
+                crs_to=ground_crs,
+            )
+            hole_ground = ground[shapely.contains_xy(masked_area_cloud, ground.xyz)]
+            xyz = hole_ground.xyz
+
+            masked_area_local = prepared_shell(
+                hole.gdf.geometry,
+                distance=buffer_distance,
+            )
+            logging.info("Constructing Delaunay triangles...")
+            hole_triangles = delaunay3d(
+                xyz, transformer=transformer, shell=masked_area_local
+            )
+            logging.info("Constructing 3D mesh...")
+            mesh = simplified_mesh(
+                hole_triangles, merge_close=merge_close, smooth_iters=smooth_iters
+            )
+            logging.info("Aggregating dataframe...")
+            hole.mesh = gdf_from_mesh(mesh, crs=local_crs)
+        logging.info("Done!")

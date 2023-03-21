@@ -2,6 +2,10 @@
 
 Exploring golf shot strategy.
 
+[![PyPI](https://img.shields.io/pypi/v/pitchmark)](https://pypi.org/project/pitchmark/)
+![PyPI - Python Version](https://img.shields.io/pypi/pyversions/pitchmark)
+[![Codecov branch](https://img.shields.io/codecov/c/github/istvankleijn/pitchmark/master)](https://app.codecov.io/gh/istvankleijn/pitchmark)
+
 ## Installation
 
 ```bash
