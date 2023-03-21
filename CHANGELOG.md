@@ -2,6 +2,18 @@
 
 <!--next-version-placeholder-->
 
+## v0.3.0 (2023-03-21)
+### Feature
+* Represent hole ground surfaces as smoothened 3D triangle meshes ([`cfe1c8b`](https://github.com/istvankleijn/pitchmark/commit/cfe1c8b80e78335269b4bf081663f01e82254784))
+* Clip and filter LAS/LAZ files ([`5588d06`](https://github.com/istvankleijn/pitchmark/commit/5588d06e4b43bd2dff5b2e9aa0056b4267de8e1a))
+
+### Fix
+* Correct calculation of slope in triangle geodataframe ([`a683663`](https://github.com/istvankleijn/pitchmark/commit/a683663f095d9dff335724165652f74e1fc9b0be))
+
+### Documentation
+* Markdown badges for PyPI and Codecov ([`118e4d4`](https://github.com/istvankleijn/pitchmark/commit/118e4d4b9ae15cffbd3f7b95e64120ebeb62b077))
+* Add badges for PyPI and Codecov ([`300d3ad`](https://github.com/istvankleijn/pitchmark/commit/300d3ad643208bf9f795fc1fb5e33bc69db1e96b))
+
 ## v0.2.0 (2023-02-27)
 ### Feature
 * Trim course features to those in play ([`593e91d`](https://github.com/istvankleijn/pitchmark/commit/593e91d5d90e592226244c05cce64502a764e2d5))
