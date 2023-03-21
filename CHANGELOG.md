@@ -2,6 +2,10 @@
 
 <!--next-version-placeholder-->
 
+## v0.3.1 (2023-03-21)
+### Fix
+* Convert slope grade correctly to percentage ([`c70c5d8`](https://github.com/istvankleijn/pitchmark/commit/c70c5d8840913e9cee0d34912799e7da5a308740))
+
 ## v0.3.0 (2023-03-21)
 ### Feature
 * Represent hole ground surfaces as smoothened 3D triangle meshes ([`cfe1c8b`](https://github.com/istvankleijn/pitchmark/commit/cfe1c8b80e78335269b4bf081663f01e82254784))

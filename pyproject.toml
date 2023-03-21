@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "pitchmark"
-version = "0.3.0"
+version = "0.3.1"
 description = "Exploring golf shot strategy."
 authors = ["Istvan Kleijn"]
 license = "MIT"
