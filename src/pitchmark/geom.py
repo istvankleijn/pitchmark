@@ -89,6 +89,9 @@ def simplified_mesh(triangles, *, merge_close=0.25, smooth_iters=10):
 def gdf_from_mesh(mesh, crs=None):
     """
     Construct a GeoDataFrame from an Open3D TriangleMesh.
+
+    The calculation of triangle normals and slopes assumes that vertical and
+    horizontal distances are measured in the same units.
     """
     triangles = shapely.polygons(np.asarray(mesh.vertices)[np.asarray(mesh.triangles)])
     mesh.compute_triangle_normals()

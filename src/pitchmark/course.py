@@ -39,10 +39,13 @@ class Course:
 
     def __post_init__(self):
         self.holes.sort(key=operator.attrgetter("hole_number"))
-        # transverse Mercator centered on 1st tee with WGS84 datum, in yards
+        # transverse Mercator centered on 1st tee with WGS84 datum, all distances
+        # measured in yards
         try:
             lon_0, lat_0 = self.holes[0].path.coords[0]
-            self.proj_string = f"+proj=tmerc +{lon_0=} +{lat_0=} +ellps=WGS84 +units=yd"
+            self.proj_string = (
+                f"+proj=tmerc +{lon_0=} +{lat_0=} +ellps=WGS84 +units=yd +vunits=yd"
+            )
             self.transformer_to_local = pyproj.Transformer.from_crs(
                 "EPSG:4326", self.proj_string, always_xy=True
             )
