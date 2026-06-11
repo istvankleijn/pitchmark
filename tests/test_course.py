@@ -41,7 +41,7 @@ def test_Course_from_featurecollection(augusta_national_path):
     assert len(course.holes) == 18
     lon_0, lat_0 = course.holes[0].path.coords[0]
     assert (
-        course.proj_string == f"+proj=tmerc +{lon_0=} +{lat_0=} +ellps=WGS84 +units=yd"
+        course.proj_string == f"+proj=tmerc +{lon_0=} +{lat_0=} +ellps=WGS84 +units=yd +vunits=yd"
     )
     assert isinstance(course.gdf, gpd.GeoDataFrame)
     assert len(course.gdf) == 205
