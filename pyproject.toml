@@ -27,8 +27,9 @@ myst-nb = "^0.17.1"
 sphinx-autoapi = "^2.0.1"
 sphinx-rtd-theme = "^1.1.1"
 python-semantic-release = "^7.33.0"
-flakeheaven = "^3.2.1"
-flake8-bugbear = "^23.1.20"
+ruff = "^0.15.0"
+pre-commit = "^4.0.0"
+nbstripout = "^0.9.1"
 jupyter = "^1.0.0"
 
 [build-system]
@@ -49,14 +50,20 @@ remove_dist = false                         # don't remove dists
 patch_without_tag = true                    # patch release by default
 major_on_zero = false                       # do not bump to 1.0.0 automatically
 
-[tool.flakeheaven]
-format = "grouped"                          # make output nice
-show_source = true                          # show line of source code in output
+[tool.ruff]
+line-length = 88
+target-version = "py310"
 
-[tool.flakeheaven.plugins]
-pyflakes = ["+*"]
-pycodestyle = ["+*", "-E203", "-W503"]
-flake8-bugbear = ["+*", "+B950"]
+[tool.ruff.lint]
+select = [
+    "E",   # pycodestyle errors
+    "W",   # pycodestyle warnings
+    "F",   # pyflakes
+    "B",   # flake8-bugbear
+    "I",   # isort
+    "UP",  # pyupgrade
+]
+ignore = ["E203"] # whitespace before ':' - conflicts with ruff format on slices
 
-[tool.flakeheaven.exceptions."*/__init__.py"]
-pyflakes = ["-F401"]
+[tool.ruff.lint.per-file-ignores]
+"*/__init__.py" = ["F401"]
