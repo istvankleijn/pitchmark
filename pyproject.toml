@@ -52,7 +52,12 @@ version_variables = ["pyproject.toml:project.version"]
 allow_zero_version = true
 major_on_zero = false                       # do not bump to 1.0.0 automatically
 tag_format = "v{version}"
-build_command = "uv build"                  # build dists
+build_command = """
+    python -m pip install "uv~=0.11.29"
+    uv lock --upgrade-package "$PACKAGE_NAME"
+    git add uv.lock
+    uv build
+"""
 commit_author = "github-actions <actions@users.noreply.github.com>"
 
 [tool.semantic_release.branches.main]
