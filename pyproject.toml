@@ -48,16 +48,10 @@ requires = ["uv_build>=0.11.29,<0.12.0"]
 build-backend = "uv_build"
 
 [tool.semantic_release]
-version_variables = ["pyproject.toml:project.version"]
+version_toml = ["pyproject.toml:project.version"]
 allow_zero_version = true
 major_on_zero = false                       # do not bump to 1.0.0 automatically
 tag_format = "v{version}"
-build_command = """
-    python -m pip install "uv~=0.11.29"
-    uv lock --upgrade-package "$PACKAGE_NAME"
-    git add uv.lock
-    uv build
-"""
 commit_author = "github-actions <actions@users.noreply.github.com>"
 
 [tool.semantic_release.branches.main]
@@ -66,6 +60,7 @@ prerelease = false
 
 [tool.semantic_release.changelog]
 mode = "update"
+insertion_flag = "<!--next-version-placeholder-->"
 
 [tool.semantic_release.changelog.default_templates]
 changelog_file = "CHANGELOG.md"             # changelog file

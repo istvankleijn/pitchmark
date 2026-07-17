@@ -103,6 +103,22 @@ jobs:
           git_committer_name: "github-actions"
           git_committer_email: "actions@users.noreply.github.com"
 
+      - name: Sync uv.lock for release
+        if: steps.release.outputs.released == 'true'
+        run: |
+          uv lock --upgrade-package pitchmark
+          if ! git diff --quiet -- uv.lock; then
+            git config user.name "github-actions"
+            git config user.email "actions@users.noreply.github.com"
+            git add uv.lock
+            git commit -m "chore: sync uv.lock for ${{ steps.release.outputs.tag }}"
+            git push
+          fi
+
+      - name: Build distribution
+        if: steps.release.outputs.released == 'true'
+        run: uv build
+
       - name: Publish | Upload to GitHub Release Assets
         uses: python-semantic-release/publish-action@v10.6.1
         if: steps.release.outputs.released == 'true'
