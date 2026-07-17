@@ -16,7 +16,7 @@ jobs:
           # All of these options are optional, so you can remove them if you are happy with the defaults
           concurrent_skipping: 'same_content_newer'
           skip_after_successful_duplicate: 'true'
-          paths_ignore: '["**/README.md", "**/docs/**"]'          
+          paths_ignore: '["**/README.md", "**/docs/**"]'
           do_not_skip: '["push", "workflow_dispatch", "schedule"]'
   ci:
     needs: pre_job
@@ -46,8 +46,8 @@ jobs:
       - name: Use Codecov to track coverage
         uses: codecov/codecov-action@v3
         with:
-          files: ./coverage.xml   # coverage report          
-    
+          files: ./coverage.xml   # coverage report
+
       - name: Lint with ruff
         run: poetry run ruff check ./src/ ./tests/
 
