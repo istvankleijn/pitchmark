@@ -1,8 +1,8 @@
-from dataclasses import dataclass, field
 import json
 import logging
 import operator
 import warnings
+from dataclasses import dataclass, field
 
 import geopandas as gpd
 import laspy
@@ -190,7 +190,7 @@ class Course:
             for x in hole_path.coords[1:]
         ]
         shot_connectors = []
-        for x, y in zip(shot_locations[:-1], shot_locations[1:]):
+        for x, y in zip(shot_locations[:-1], shot_locations[1:], strict=True):
             mp = shapely.MultiPolygon([x, y])
             shot_connectors.append(mp.convex_hull)
         shots_envelope = shapely.unary_union(shot_connectors)

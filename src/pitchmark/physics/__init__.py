@@ -6,4 +6,4 @@ from importlib.metadata import version
 __version__ = version("pitchmark")
 
 # Populate namespace
-from pitchmark.physics.rolling import softness, Surface, Green
+from pitchmark.physics.rolling import Green, Surface, softness

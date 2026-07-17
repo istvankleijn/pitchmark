@@ -2,7 +2,6 @@ import json
 
 import osmium
 
-
 golf_tags = {
     ("golf", "hole"),
     ("golf", "tee"),

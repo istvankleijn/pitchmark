@@ -17,7 +17,7 @@ def test_softness():
     ],
 )
 def test_Surface_init(stimp, gdf):
-    surf = physics.Surface(stimp, gdf = gdf)
+    surf = physics.Surface(stimp, gdf=gdf)
     assert isinstance(surf, physics.Surface)
     assert isinstance(surf.gdf, gpd.GeoDataFrame)
     assert surf.stimp == stimp
@@ -27,7 +27,7 @@ def test_Surface_init(stimp, gdf):
 def test_Surface_usage(circle10_gdf):
     stimp = 6.0
     surface = physics.Surface(stimp, circle10_gdf)
-    assert surface.normal(1, 1) 
+    assert surface.normal(1, 1)
 
 
 def test_MinBallSpeed_init():

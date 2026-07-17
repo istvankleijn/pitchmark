@@ -28,7 +28,7 @@ def clip_to_geoseries(
     *,
     to_file="out.laz",
     classification_filter=None,
-    shell_distance=2.0
+    shell_distance=2.0,
 ):
     """
     Read in multiple LAS/LAZ files, filter points with specified classifications,

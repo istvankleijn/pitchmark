@@ -1,7 +1,6 @@
 import geopandas as gpd
 import numpy as np
 import shapely
-
 from scipy.integrate import solve_ivp
 
 # Physics constants

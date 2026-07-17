@@ -36,6 +36,5 @@ def circle10_polygon():
 @pytest.fixture
 def circle10_gdf(circle10_polygon):
     return gpd.GeoDataFrame(
-        geometry=[circle10_polygon], 
-        crs=f"+proj=tmerc +ellps=WGS84 +units=yd +vunits=yd"
+        geometry=[circle10_polygon], crs="+proj=tmerc +ellps=WGS84 +units=yd +vunits=yd"
     )

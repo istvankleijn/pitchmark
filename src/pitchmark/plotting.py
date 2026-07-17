@@ -1,6 +1,5 @@
 import altair as alt
 
-
 _palette = {
     "water": "RoyalBlue",
     "sand": "Khaki",
