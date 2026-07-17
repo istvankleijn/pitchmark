@@ -2,6 +2,14 @@
 
 <!--next-version-placeholder-->
 
+## v0.4.2 (2026-07-17)
+
+### Bug Fixes
+
+- Correct psr version_toml, changelog marker, and move build off container
+  ([`7846f64`](https://github.com/istvankleijn/pitchmark/commit/7846f64bc94e914ade9bd92b631b0d4be21750a6))
+
+
 ## v0.3.1 (2023-03-21)
 ### Fix
 * Convert slope grade correctly to percentage ([`c70c5d8`](https://github.com/istvankleijn/pitchmark/commit/c70c5d8840913e9cee0d34912799e7da5a308740))
