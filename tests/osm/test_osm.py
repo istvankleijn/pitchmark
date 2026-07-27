@@ -1,4 +1,5 @@
 import osmium
+import pytest
 
 import pitchmark.osm
 
@@ -23,3 +24,9 @@ def test_GolfHandler_usage(augusta_national_path):
         if properties.get("golf") == "hole" and properties.get("name") == "Azalea":
             azalea = feature
     assert azalea is not None
+
+
+def test_GolfHandler_add_feature_unsupported_geom_type():
+    handler = pitchmark.osm.GolfHandler()
+    with pytest.raises(ValueError, match="not supported"):
+        handler.add_feature(None, "point")
