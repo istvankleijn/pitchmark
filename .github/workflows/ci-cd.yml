@@ -47,7 +47,9 @@ jobs:
       - name: Use Codecov to track coverage
         uses: codecov/codecov-action@v7
         with:
+          token: ${{ secrets.CODECOV_TOKEN }}
           files: ./coverage.xml   # coverage report
+          fail_ci_if_error: true
 
       - name: Lint with ruff
         run: uv run --frozen ruff check ./src/ ./tests/
