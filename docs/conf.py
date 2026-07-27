@@ -7,7 +7,7 @@
 # -- Project information -----------------------------------------------------
 
 project = u"pitchmark"
-copyright = u"2023, Istvan Kleijn"
+copyright = u"2023-2026, Istvan Kleijn"
 author = u"Istvan Kleijn"
 
 # -- General configuration ---------------------------------------------------
