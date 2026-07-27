@@ -24,11 +24,11 @@ def test_chart_course(augusta_national, mode, tooltip):
     assert isinstance(chart, alt.Chart)
 
     chart_dict = chart.to_dict()
-    assert chart_dict["mark"] == "geoshape"
+    assert chart_dict["mark"]["type"] == "geoshape"
     assert chart_dict["encoding"]["color"]["field"] == mode
     if tooltip is True:
         assert chart_dict["encoding"]["tooltip"] == [
             {"field": "name", "type": "nominal"},
-            {"field": "ground_cover", "type": "nominal"},
-            {"field": "course_area", "type": "nominal"},
+            {"field": "ground_cover", "type": "ordinal"},
+            {"field": "course_area", "type": "ordinal"},
         ]
