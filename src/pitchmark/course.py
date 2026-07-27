@@ -196,8 +196,8 @@ class Course:
         shots_envelope = shapely.unary_union(shot_connectors)
         mask = shapely.unary_union(
             (
-                fairways.unary_union.buffer(fairway_buffer),
-                green.unary_union.buffer(green_buffer),
+                fairways.union_all().buffer(fairway_buffer),
+                green.union_all().buffer(green_buffer),
                 shots_envelope,
             )
         )

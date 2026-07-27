@@ -22,7 +22,7 @@ def prepared_shell(geoseries, *, distance=0.0, crs_to=None):
     Geoseries, optionally transform it to a different CRS, and prepare it to improve
     computational efficiency of subsequent operations.
     """
-    masked_area = geoseries.unary_union.buffer(distance)
+    masked_area = geoseries.union_all().buffer(distance)
 
     if crs_to is not None:
         transformer = pyproj.Transformer.from_crs(geoseries.crs, crs_to, always_xy=True)
