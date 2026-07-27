@@ -72,6 +72,36 @@ def test_simplify_close_vertices():
     assert len(mesh.triangles) == 2
 
 
+@pytest.mark.parametrize(
+    "distance, expected_vertex_count",
+    [
+        (0.01, 4),  # corners are 0.05 apart: farther than distance, stay separate
+        (0.1, 3),  # corners are 0.05 apart: closer than distance, get merged
+    ],
+)
+def test_simplify_close_vertices_distance_threshold(distance, expected_vertex_count):
+    # Two triangles sharing two exactly-duplicated corners and one corner that's
+    # a controlled 0.05 apart, to check the merge distance threshold itself
+    # rather than just exact-duplicate merging.
+    vertices = o3d.utility.Vector3dVector(
+        [
+            [0, 0, 0],
+            [1, 0, 0],
+            [0, 1, 0],
+            [0, 0, 0.05],
+            [1, 0, 0],
+            [0, 1, 0],
+        ]
+    )
+    triangle_indices = o3d.utility.Vector3iVector([[0, 1, 2], [3, 4, 5]])
+    mesh = o3d.geometry.TriangleMesh(vertices, triangle_indices)
+
+    pitchmark.geom.simplify_close_vertices(mesh, distance=distance)
+
+    assert len(mesh.vertices) == expected_vertex_count
+    assert len(mesh.triangles) == 2
+
+
 def test_simplified_mesh():
     triangles = [
         _triangle([(0, 0, 0), (1, 0, 0), (1, 1, 0)]),
