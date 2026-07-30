@@ -9,6 +9,36 @@
 - Correct psr version_toml, changelog marker, and move build off container
   ([`7846f64`](https://github.com/istvankleijn/pitchmark/commit/7846f64bc94e914ade9bd92b631b0d4be21750a6))
 
+> **Note:** `v0.4.0` and `v0.4.1` were cut while migrating the release pipeline
+> from python-semantic-release v7 to v10, and the version-bump step was broken
+> for both (fixed by the commit above) — `pyproject.toml` stayed pinned at
+> `0.4.0a0` in both tags. As a result, only a `0.4.0a0` prerelease ever reached
+> PyPI; no `0.4.0` or `0.4.1` package exists there. `v0.4.2` is the first
+> release after `v0.3.1` with a working build and a correctly stamped version.
+
+
+## v0.4.1 (2026-07-17)
+
+### Bug Fixes
+
+- Pin Python 3.10 in the TestPyPI install-verification step
+  ([`cd613fa`](https://github.com/istvankleijn/pitchmark/commit/cd613fa17234cec52fdfa626a8d22f8c0933b0bc))
+
+
+## v0.4.0 (2026-07-17)
+
+### Features
+
+- Simulate ball rolling on green surface
+  ([`b5eec1b`](https://github.com/istvankleijn/pitchmark/commit/b5eec1bb15299d19f621f7c7ec1783ff6ae7d5a0))
+
+### Bug Fixes
+
+- Measure elevation in yards
+  ([`3da7500`](https://github.com/istvankleijn/pitchmark/commit/3da7500459553b5a1d83a3dfacf259b91483f029))
+- Install uv inside the semantic-release Docker action for build_command
+  ([`5e27c65`](https://github.com/istvankleijn/pitchmark/commit/5e27c659612d2f5660a2c8c05d60ee4011ff9ac8))
+
 
 ## v0.3.1 (2023-03-21)
 ### Fix
