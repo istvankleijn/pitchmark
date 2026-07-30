@@ -50,7 +50,7 @@ jobs:
         run: uv run --frozen pytest tests/ --cov=pitchmark --cov-branch --cov-report=xml
 
       - name: Use Codecov to track coverage
-        if: matrix.python-version == '3.10'
+        if: matrix.python-version == '3.12'
         uses: codecov/codecov-action@v7
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
@@ -58,12 +58,15 @@ jobs:
           fail_ci_if_error: true
 
       - name: Lint with ruff
+        if: matrix.python-version == '3.12'
         run: uv run --frozen ruff check ./src/ ./tests/
 
       - name: Check formatting with ruff
+        if: matrix.python-version == '3.12'
         run: uv run --frozen ruff format --check ./src/ ./tests/
 
       - name: Build documentation
+        if: matrix.python-version == '3.12'
         run: uv run --frozen make html --directory docs/
 
   release:
