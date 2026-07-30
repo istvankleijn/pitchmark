@@ -27,6 +27,11 @@ jobs:
     # Set up operating system
     runs-on: ubuntu-latest
 
+    strategy:
+      fail-fast: false
+      matrix:
+        python-version: ["3.10", "3.11", "3.12"]
+
     # Define job steps
     steps:
       - name: Check-out repository
@@ -36,7 +41,7 @@ jobs:
         uses: astral-sh/setup-uv@v8.3.2
         with:
           enable-cache: true
-          python-version: "3.10"
+          python-version: ${{ matrix.python-version }}
 
       - name: Install dependencies
         run: uv sync --locked --all-groups
@@ -45,6 +50,7 @@ jobs:
         run: uv run --frozen pytest tests/ --cov=pitchmark --cov-branch --cov-report=xml
 
       - name: Use Codecov to track coverage
+        if: matrix.python-version == '3.10'
         uses: codecov/codecov-action@v7
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
@@ -92,7 +98,7 @@ jobs:
         uses: astral-sh/setup-uv@v8.3.2
         with:
           enable-cache: true
-          python-version: "3.10"
+          python-version: "3.12"
 
       - name: Install dependencies
         run: uv sync --locked --all-groups
@@ -157,10 +163,21 @@ jobs:
         with:
           repository-url: https://test.pypi.org/legacy/
 
+  verify-testpypi-install:
+    needs: [release, publish-testpypi]
+    if: needs.release.outputs.released == 'true'
+    runs-on: ubuntu-latest
+
+    strategy:
+      fail-fast: false
+      matrix:
+        python-version: ["3.10", "3.11", "3.12"]
+
+    steps:
       - name: Set up Python
         uses: actions/setup-python@v6
         with:
-          python-version: "3.10"
+          python-version: ${{ matrix.python-version }}
 
       - name: Test install from TestPyPI
         run: |
@@ -170,7 +187,7 @@ jobs:
             pitchmark
 
   publish-pypi:
-    needs: [release, publish-testpypi]
+    needs: [release, publish-testpypi, verify-testpypi-install]
     if: needs.release.outputs.released == 'true'
     runs-on: ubuntu-latest
     environment: pypi
