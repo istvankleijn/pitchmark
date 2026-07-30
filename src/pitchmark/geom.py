@@ -39,6 +39,7 @@ def delaunay3d(xyz, *, transformer=None, shell=None):
     predefined shell.
 
     Parameters:
+
     xyz: np.array
         Point cloud data.
     transformer: pyproj.Transformer or None, default None
