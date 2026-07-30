@@ -3,13 +3,14 @@ name = "pitchmark"
 version = "0.4.2"
 description = "Exploring golf shot strategy."
 authors = [{ name = "Istvan Kleijn" }]
-requires-python = ">=3.10,<3.12"
+requires-python = ">=3.10,<3.13"
 readme = "README.md"
 license = "MIT"
 classifiers = [
     "Programming Language :: Python :: 3",
     "Programming Language :: Python :: 3.10",
     "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
 ]
 dependencies = [
     "shapely>=2.1.2,<3",
@@ -19,7 +20,7 @@ dependencies = [
     "altair>=6.2.2,<7",
     "laspy>=2.7.0,<3",
     "lazrs>=0.8.2,<0.9",
-    "pyproj>=3.4.1,<4",
+    "pyproj>=3.6.1,<4",
     "open3d>=0.19.0,<0.20",
     "numpy>=2.2.6,<3",
     "scipy>=1.10.1,<2",
