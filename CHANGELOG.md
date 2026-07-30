@@ -2,6 +2,94 @@
 
 <!--next-version-placeholder-->
 
+## v0.5.0 (2026-07-30)
+
+### Bug Fixes
+
+- Bump stale transitive deps breaking Python 3.12 on Linux CI
+  ([`84a623d`](https://github.com/istvankleijn/pitchmark/commit/84a623d1ea49b911a13232e6153eeb7ea8fb8f83))
+
+### Build System
+
+- Bump altair 4.2.2 -> 6.2.2
+  ([`bf8f3bf`](https://github.com/istvankleijn/pitchmark/commit/bf8f3bf4700e84de21b0641acc202864ee706ea1))
+
+- Bump laspy 2.4.1 -> 2.7.0
+  ([`ce01445`](https://github.com/istvankleijn/pitchmark/commit/ce01445ab13f564e9a22cb06f6d1cc98a115d9e2))
+
+- Bump myst-nb, sphinx-autoapi, sphinx-rtd-theme to current majors
+  ([`6294bf2`](https://github.com/istvankleijn/pitchmark/commit/6294bf2719a4f992ccdfd4224bf10b56a9a12670))
+
+- Bump open3d 0.16.0 -> 0.19.0
+  ([`8ca3963`](https://github.com/istvankleijn/pitchmark/commit/8ca396321249966333b2237a551d5dd142de3b73))
+
+- Bump osmium 3.6.0 -> 4.3.1
+  ([`021070c`](https://github.com/istvankleijn/pitchmark/commit/021070c0d9ef39a9d385968999de0192ebe43761))
+
+- Bump pandas, numpy, geopandas, and shapely
+  ([`cd230cd`](https://github.com/istvankleijn/pitchmark/commit/cd230cd5582d012114d902b3beb2559fbba8c7ab))
+
+- Bump pytest 7.3.1 -> 9.1.1, pytest-cov 4.0.0 -> 7.1.0
+  ([`52248bb`](https://github.com/istvankleijn/pitchmark/commit/52248bba0f6c3f5c83d2a82c23df0488f9f0defd))
+
+- Replace laszip backend with lazrs
+  ([`8f7bc75`](https://github.com/istvankleijn/pitchmark/commit/8f7bc7523a86ebb2ee196e7a8c4d31d952e707a2))
+
+### Chores
+
+- Sync uv.lock for v0.4.2
+  ([`cd2f4e2`](https://github.com/istvankleijn/pitchmark/commit/cd2f4e2f1f448802c046cf4bf16da750a8d5b9f6))
+
+### Continuous Integration
+
+- Run lint, format check, docs build, and coverage only on 3.12
+  ([`88eaf19`](https://github.com/istvankleijn/pitchmark/commit/88eaf19da35e6d22bf6c1bc043ee2fdf22630605))
+
+- Test against Python 3.10-3.12 in CI matrix
+  ([`5d2ba8a`](https://github.com/istvankleijn/pitchmark/commit/5d2ba8a2513432ff0fd130aa665854a327ce4db3))
+
+- Wire Codecov upload token and fail loudly on upload errors
+  ([`1f6a166`](https://github.com/istvankleijn/pitchmark/commit/1f6a1669ebe7619c7bf3221e1a9360c1fe2bf3a8))
+
+### Documentation
+
+- Backfill missing v0.4.0/v0.4.1 changelog entries
+  ([`9a43004`](https://github.com/istvankleijn/pitchmark/commit/9a43004f56230fa4170c22666dedafede516d78a))
+
+- Fix Codecov badge branch reference
+  ([`de07c0e`](https://github.com/istvankleijn/pitchmark/commit/de07c0e511b39a8c3ceab11b28b217abdec192e4))
+
+- Update stale 2023 copyright year to 2023-2026
+  ([`1bc0604`](https://github.com/istvankleijn/pitchmark/commit/1bc0604b795985fc8fb948453926ce3387d13bda))
+
+### Features
+
+- Support Python 3.12
+  ([`b47798d`](https://github.com/istvankleijn/pitchmark/commit/b47798d70107407f2af227a3eec6186751eedba2))
+
+### Refactoring
+
+- Replace deprecated GeoSeries.unary_union with union_all()
+  ([`8991d7e`](https://github.com/istvankleijn/pitchmark/commit/8991d7eff25cc45b04127cbd0b39299d49fb5728))
+
+### Testing
+
+- Cover clip_to_geoseries with synthetic LAS data
+  ([`81c061b`](https://github.com/istvankleijn/pitchmark/commit/81c061b739136659bcf7c901e515c27a48a4360a))
+
+- Cover GolfHandler.add_feature's unsupported geom_type guard
+  ([`0ef8414`](https://github.com/istvankleijn/pitchmark/commit/0ef84146acb0006932e023d2067427956116ce26))
+
+- Cover simplify_close_vertices, simplified_mesh, and gdf_from_mesh
+  ([`2a85719`](https://github.com/istvankleijn/pitchmark/commit/2a85719a97f0caa76c0de70aa0d84ead037771f6))
+
+- Update chart assertions for altair 6's schema changes
+  ([`30c59d3`](https://github.com/istvankleijn/pitchmark/commit/30c59d3da424f7b14fb5847f2568e502c8d72404))
+
+- Verify simplify_close_vertices distance threshold behavior
+  ([`1195a91`](https://github.com/istvankleijn/pitchmark/commit/1195a9157deabd466a94424cd2aa461aba0f6c57))
+
+
 ## v0.4.2 (2026-07-17)
 
 ### Bug Fixes

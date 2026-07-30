@@ -1,6 +1,6 @@
 [project]
 name = "pitchmark"
-version = "0.4.2"
+version = "0.5.0"
 description = "Exploring golf shot strategy."
 authors = [{ name = "Istvan Kleijn" }]
 requires-python = ">=3.10,<3.13"
