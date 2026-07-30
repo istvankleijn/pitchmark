@@ -5,27 +5,32 @@ from scipy.integrate import solve_ivp
 
 # Physics constants
 MOI_SOLID_SPHERE = 0.4
-GRAVITY = 9.8  # m/s^2
 
 # Unit conversions
 ONE_FOOT = 0.3048  # m
-ONE_YARD = 3 * ONE_FOOT
+ONE_YARD = 3 * ONE_FOOT  # m
+FEET_PER_YARD = 3
+INCHES_PER_YARD = 36
+
+# All physics below is in yards and seconds.
+GRAVITY = 9.8 / ONE_YARD  # yd/s^2
 
 # Golf rules
-BALL_RADIUS = 0.02135  # m
-HOLE_RADIUS = 0.054  # m
+BALL_RADIUS = 0.84 / INCHES_PER_YARD  # yd
+HOLE_RADIUS = 2.125 / INCHES_PER_YARD  # yd
 
 
 def softness(stimp_reading, *, ball_moi=MOI_SOLID_SPHERE, gravity=GRAVITY):
     """
-    Convert Stimpmeter reading to a surface softness.
+    Convert a Stimpmeter reading (in feet) to a surface softness.
 
     By design, a golf ball leaves a Stimpmeter at a speed of 6.0 ft/s. The distance it
-    then travels is the surface's reading.
+    then travels, in feet, is the surface's Stimpmeter reading.
     The softness of a deformable surface with respect to a ball is equivalent to the
     fraction of the ball that lies beneath the level surface.
     """
-    init_ball_speed = 6.0 * ONE_FOOT
+    init_ball_speed = 6.0 / FEET_PER_YARD  # yd/s
+    stimp_reading = stimp_reading / FEET_PER_YARD  # ft -> yd
     return (init_ball_speed**2) * (1.0 + ball_moi) / (2 * gravity * stimp_reading)
 
 
@@ -37,20 +42,24 @@ class Surface:
             self.gdf = gpd.GeoDataFrame()
         else:
             self.gdf = gdf
+        self.strtree = None if self.gdf.empty else shapely.STRtree(self.gdf.geometry)
         self.ball_moi = ball_moi
         self.gravity = gravity
 
+    def _lookup(self, x, y, columns):
+        if self.strtree is None:
+            return None
+        candidates = self.strtree.query(shapely.Point(x, y), predicate="within")
+        if len(candidates) == 0:
+            return None
+        return self.gdf.iloc[candidates[0]][columns].to_numpy()
+
     def normal(self, x, y):
-        return self.gdf.loc[
-            self.gdf.intersects(shapely.Point(x, y)),
-            ["normal_x", "normal_y", "normal_z"],
-        ].values
+        values = self._lookup(x, y, ["normal_x", "normal_y", "normal_z"])
+        return np.array([0.0, 0.0, 1.0]) if values is None else values
 
     def z(self, x, y):
-        return self.gdf.loc[
-            self.gdf.intersects(shapely.Point(x, y)),
-            ["z"],
-        ].values
+        return self._lookup(x, y, ["z"])
 
     def simple_roll_du(self, u):
         x, y, vx, vy = u
@@ -62,12 +71,22 @@ class Surface:
         rho_g = self.softness
 
         nx, ny, nz = self.normal(x, y)
-        grade = np.sqrt(1.0 - nz * nz)
         v = np.sqrt(vx * vx + vy * vy)
+        cos_theta = vx / v
+        sin_theta = vy / v
 
-        prefactor = g / I_b
-        dvx = prefactor * (grade * nx - rho_g * vx / v)
-        dvy = prefactor * (grade * ny - rho_g * vy / v)
+        # Resolve gravity/slope into components forward and perpendicular to the
+        # ball's current direction of travel. The rolling-friction contact point is
+        # offset ahead of the ball by the local slope rather than sitting directly
+        # opposite velocity, which is why this can't be a simple v-antiparallel drag
+        # term - adapted from Penner (Can J Phys 2002) for a slope that varies
+        # spatially rather than Penner's fixed slope direction.
+        prefactor = -g * I_b / (1.0 + I_b)
+        dv_forward = prefactor * (rho_g / I_b + nx * cos_theta - ny * sin_theta)
+        dv_perpendicular = prefactor * (nx * sin_theta + ny * cos_theta)
+
+        dvx = dv_forward * cos_theta - dv_perpendicular * sin_theta
+        dvy = dv_forward * sin_theta + dv_perpendicular * cos_theta
         return [dx, dy, dvx, dvy]
 
     def roll_ball(
