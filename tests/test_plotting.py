@@ -87,6 +87,7 @@ def test_chart_incline(tooltip):
     assert chart_dict["mark"]["type"] == "point"
     assert chart_dict["mark"]["shape"] == "wedge"
     assert chart_dict["mark"]["filled"] is True
+    assert chart_dict["mark"]["color"] == "DarkViolet"
     assert chart_dict["encoding"]["longitude"]["field"] == "x"
     assert chart_dict["encoding"]["latitude"]["field"] == "y"
     assert chart_dict["encoding"]["angle"]["field"] == "slope_heading"
@@ -167,6 +168,7 @@ def test_chart_trajectory(tooltip):
     assert chart_dict["encoding"]["longitude"]["field"] == "x"
     assert chart_dict["encoding"]["latitude"]["field"] == "y"
     assert chart_dict["encoding"]["color"]["field"] == "v"
+    assert chart_dict["encoding"]["color"]["scale"]["scheme"] == "oranges"
     if tooltip is True:
         assert chart_dict["encoding"]["tooltip"] == [
             {"field": "t", "type": "quantitative"},

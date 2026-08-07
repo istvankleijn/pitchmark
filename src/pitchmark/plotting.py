@@ -84,6 +84,11 @@ def chart_incline(geodataframe, *, tooltip=True):
     """
     Chart a mesh GeoDataFrame's triangles as wedge markers pointing downslope.
 
+    Wedges are drawn in a fixed color (not data-encoded) chosen to stand out
+    against both :func:`chart_course`'s ground-cover palette and
+    :func:`chart_trajectory`'s color scale, since the three are commonly
+    layered together.
+
     Parameters:
 
     geodataframe: geopandas.GeoDataFrame
@@ -96,7 +101,7 @@ def chart_incline(geodataframe, *, tooltip=True):
     tooltip = _resolve_tooltip(tooltip, ["x", "y", "z", "slope_heading", "slope_grade"])
     return (
         alt.Chart(geodataframe)
-        .mark_point(shape="wedge", filled=True)
+        .mark_point(shape="wedge", filled=True, color="DarkViolet")
         .encode(
             longitude="x",
             latitude="y",
@@ -149,6 +154,11 @@ def chart_trajectory(trajectory_df, *, tooltip=True):
     """
     Chart a ball's trajectory as points colored by speed.
 
+    Uses a fixed "oranges" sequential scale, chosen to stand out against
+    both :func:`chart_course`'s ground-cover palette and
+    :func:`chart_incline`'s wedge color, since the three are commonly
+    layered together.
+
     Parameters:
 
     trajectory_df: pandas.DataFrame
@@ -164,7 +174,7 @@ def chart_trajectory(trajectory_df, *, tooltip=True):
         .encode(
             longitude="x",
             latitude="y",
-            color="v",
+            color=alt.Color("v", scale=alt.Scale(scheme="oranges")),
             tooltip=tooltip,
         )
     )
