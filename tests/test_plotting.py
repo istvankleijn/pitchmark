@@ -233,7 +233,11 @@ def test_trajectory_dataframe():
     assert len(df) == 50
     assert df["t"].iloc[0] == pytest.approx(sol.t[0])
     assert df["t"].iloc[-1] == pytest.approx(sol.t[-1])
-    assert (df["v"] == (df["vx"] ** 2 + df["vy"] ** 2) ** 0.5).all()
+    # Exact == on independently-computed floats (np.hypot vs **0.5) is
+    # fragile across platforms - they can differ by a ULP depending on the
+    # libm behind numpy, even though the formulas are mathematically the
+    # same (confirmed failing on Linux CI, passing on Windows).
+    assert df["v"].to_numpy() == pytest.approx((df["vx"] ** 2 + df["vy"] ** 2) ** 0.5)
 
 
 def test_trajectory_dataframe_default_dt():
