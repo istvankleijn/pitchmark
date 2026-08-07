@@ -92,6 +92,7 @@ def test_chart_incline(tooltip):
     assert chart_dict["mark"]["shape"] == "wedge"
     assert chart_dict["mark"]["filled"] is True
     assert chart_dict["mark"]["color"] == "DarkViolet"
+    assert chart_dict["mark"]["clip"] is True
     assert chart_dict["encoding"]["longitude"]["field"] == "x"
     assert chart_dict["encoding"]["latitude"]["field"] == "y"
     assert chart_dict["encoding"]["angle"]["field"] == "slope_heading"
@@ -100,6 +101,46 @@ def test_chart_incline(tooltip):
         assert chart_dict["encoding"]["tooltip"] == _DEFAULT_MESH_TOOLTIP
     else:
         assert chart_dict["encoding"]["tooltip"] == {"value": None}
+
+
+def test_chart_incline_hover():
+    gdf = _mesh_gdf([(-100, -100, 0), (100, -100, 0), (-100, 100, 50)])
+    chart = pitchmark.plotting.chart_incline(gdf, hover=True)
+    chart_dict = chart.to_dict()
+
+    assert "color" not in chart_dict["mark"]
+    color = chart_dict["encoding"]["color"]
+    assert color["value"] == "DarkViolet"
+    assert color["condition"]["value"] == "red"
+    assert color["condition"]["empty"] is False
+
+    (param,) = chart_dict["params"]
+    assert param["select"] == {"type": "point", "nearest": True, "on": "pointerover"}
+    assert param["name"] == color["condition"]["param"]
+
+
+def test_chart_incline_interactive_size_max():
+    gdf = _mesh_gdf([(-100, -100, 0), (100, -100, 0), (-100, 100, 50)])
+    chart = pitchmark.plotting.chart_incline(gdf, interactive_size_max=True)
+    chart_dict = chart.to_dict()
+
+    max_grade = gdf["slope_grade"].max()
+    (param,) = chart_dict["params"]
+    assert param["bind"]["input"] == "range"
+    assert param["bind"]["min"] == 1.0
+    assert param["bind"]["max"] == pytest.approx(max_grade)
+    assert param["value"] == pytest.approx(gdf["slope_grade"].quantile(0.9))
+
+    size = chart_dict["encoding"]["size"]
+    assert size["field"] == "slope_grade"
+    assert size["scale"]["domainMax"] == {"expr": param["name"]}
+
+
+def test_chart_incline_hover_and_interactive_size_max_together():
+    gdf = _mesh_gdf([(-100, -100, 0), (100, -100, 0), (-100, 100, 50)])
+    chart = pitchmark.plotting.chart_incline(gdf, hover=True, interactive_size_max=True)
+    chart_dict = chart.to_dict()
+    assert len(chart_dict["params"]) == 2
 
 
 def test_chart_grade_custom_tooltip():
@@ -182,6 +223,37 @@ def test_chart_trajectory(tooltip):
         ]
     else:
         assert chart_dict["encoding"]["tooltip"] == {"value": None}
+
+
+def test_chart_trajectories():
+    surf = physics.Surface(10.0)
+    dfs = []
+    for vx0 in (0.3, 0.5, 0.7):
+        _, sol = surf.roll_ball(0.0, 0.0, vx0, STIMP_INIT_SPEED, dense=True)
+        dfs.append(pitchmark.plotting.trajectory_dataframe(sol, n=5))
+
+    chart = pitchmark.plotting.chart_trajectories(dfs)
+    assert isinstance(chart, alt.LayerChart)
+
+    chart_dict = chart.to_dict()
+    assert len(chart_dict["layer"]) == 3
+    assert chart_dict["resolve"] == {
+        "scale": {"color": "shared"},
+        "legend": {"color": "shared"},
+    }
+    for layer in chart_dict["layer"]:
+        assert layer["mark"]["type"] == "point"
+        assert layer["encoding"]["color"]["field"] == "v"
+
+
+def test_chart_trajectories_passes_kwargs():
+    surf = physics.Surface(10.0)
+    _, sol = surf.roll_ball(0.0, 0.0, 0.0, STIMP_INIT_SPEED, dense=True)
+    df = pitchmark.plotting.trajectory_dataframe(sol, n=5)
+
+    chart = pitchmark.plotting.chart_trajectories([df], tooltip=False)
+    (layer,) = chart.to_dict()["layer"]
+    assert layer["encoding"]["tooltip"] == {"value": None}
 
 
 def test_chart_hole_marker():

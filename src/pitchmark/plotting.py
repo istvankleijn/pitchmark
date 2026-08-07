@@ -111,14 +111,16 @@ def chart_grade(geodataframe, *, tooltip=True):
     )
 
 
-def chart_incline(geodataframe, *, tooltip=True):
+def chart_incline(
+    geodataframe, *, tooltip=True, hover=False, interactive_size_max=False
+):
     """
     Chart a mesh GeoDataFrame's triangles as wedge markers pointing downslope.
 
-    Wedges are drawn in a fixed color (not data-encoded) chosen to stand out
-    against both :func:`chart_course`'s ground-cover palette and
-    :func:`chart_trajectory`'s color scale, since the three are commonly
-    layered together.
+    By default, wedges are drawn in a fixed color (not data-encoded) chosen
+    to stand out against both :func:`chart_course`'s ground-cover palette
+    and :func:`chart_trajectory`'s color scale, since the three are
+    commonly layered together.
 
     Parameters:
 
@@ -128,19 +130,53 @@ def chart_incline(geodataframe, *, tooltip=True):
     tooltip: bool or list, default True
         If True, show the default tooltip columns. If False or None, disable
         the tooltip. Otherwise, an explicit list of columns to show.
+    hover: bool, default False
+        If True, the wedge nearest the pointer turns red on hover - makes
+        individual wedges easier to target, since they can be very small.
+    interactive_size_max: bool, default False
+        If True, adds a range-slider control bound to the chart that caps
+        the ``slope_grade`` size scale's upper bound - useful when a few
+        very steep triangles (e.g. bunker edges) would otherwise dominate
+        the size scale and hide subtler slopes elsewhere.
     """
     tooltip = _resolve_tooltip(tooltip, ["x", "y", "z", "slope_heading", "slope_grade"])
-    return (
-        alt.Chart(geodataframe)
-        .mark_point(shape="wedge", filled=True, color="DarkViolet")
-        .encode(
-            longitude="x",
-            latitude="y",
-            angle="slope_heading",
-            size="slope_grade",
-            tooltip=tooltip,
+    mark_kwargs = {"shape": "wedge", "filled": True, "clip": True}
+    encoding = {
+        "longitude": "x",
+        "latitude": "y",
+        "angle": "slope_heading",
+        "tooltip": tooltip,
+    }
+    params = []
+
+    if hover:
+        hover_param = alt.selection_point(on="pointerover", nearest=True, empty=False)
+        params.append(hover_param)
+        encoding["color"] = alt.condition(
+            hover_param, alt.value("red"), alt.value("DarkViolet")
         )
-    )
+    else:
+        mark_kwargs["color"] = "DarkViolet"
+
+    if interactive_size_max:
+        grade_max = alt.param(
+            value=float(geodataframe["slope_grade"].quantile(0.9)),
+            bind=alt.binding_range(
+                min=1.0,
+                max=float(geodataframe["slope_grade"].max()),
+                step=1.0,
+                name="Max slope grade shown at full size: ",
+            ),
+        )
+        params.append(grade_max)
+        encoding["size"] = alt.Size("slope_grade", scale=alt.Scale(domainMax=grade_max))
+    else:
+        encoding["size"] = "slope_grade"
+
+    chart = alt.Chart(geodataframe).mark_point(**mark_kwargs).encode(**encoding)
+    if params:
+        chart = chart.add_params(*params)
+    return chart
 
 
 def trajectory_dataframe(sol, *, dt=0.04, n=None):
@@ -209,6 +245,30 @@ def chart_trajectory(trajectory_df, *, tooltip=True):
             tooltip=tooltip,
         )
     )
+
+
+def chart_trajectories(trajectory_dfs, **kwargs):
+    """
+    Chart multiple ball trajectories together, sharing one "v" color scale
+    and legend.
+
+    Layering several :func:`chart_trajectory` calls directly (e.g. via
+    ``+``) gives each its own locally-scaled color legend, so a chart with
+    5 putts ends up with 5 identical-looking "v" legends stacked on top of
+    each other. This resolves the color scale and legend to be shared
+    across all of them instead.
+
+    Parameters:
+
+    trajectory_dfs: iterable of pandas.DataFrame
+        Each as produced by :func:`trajectory_dataframe`.
+    **kwargs:
+        Passed through to each :func:`chart_trajectory` call.
+
+    Returns: altair.LayerChart
+    """
+    layer = alt.layer(*(chart_trajectory(df, **kwargs) for df in trajectory_dfs))
+    return layer.resolve_scale(color="shared").resolve_legend(color="shared")
 
 
 def chart_hole_marker(hole_location, *, hole_radius=HOLE_RADIUS):
