@@ -116,6 +116,7 @@ class Surface:
             u0,
             method=method,
             events=events,
+            dense_output=dense,
             **kwargs,
         )
         end_point = sol.y.T[-1]

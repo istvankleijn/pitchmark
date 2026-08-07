@@ -122,6 +122,10 @@ def test_roll_ball_dense_contract():
     assert end_point_dense == pytest.approx(end_point)
     assert sol.success
     assert sol.y.shape[0] == 4
+    # dense=True must actually request dense_output from solve_ivp, or sol.sol
+    # stays None and downstream trajectory sampling breaks.
+    assert sol.sol is not None
+    assert sol.sol(sol.t[0]) == pytest.approx([0.0, 0.0, 0.0, STIMP_INIT_SPEED])
 
 
 def test_roll_ball_custom_events():
