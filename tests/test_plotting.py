@@ -44,6 +44,9 @@ def test_chart_course(augusta_national, mode, tooltip):
     chart_dict = chart.to_dict()
     assert chart_dict["mark"]["type"] == "geoshape"
     assert chart_dict["encoding"]["color"]["field"] == mode
+    # No projection of its own - callers apply one shared projection when
+    # layering chart_course with other charts (see chart_incline etc.).
+    assert "projection" not in chart_dict
     if tooltip is True:
         assert chart_dict["encoding"]["tooltip"] == [
             {"field": "name", "type": "nominal"},
@@ -71,6 +74,7 @@ def test_chart_grade(tooltip):
     assert chart_dict["mark"]["type"] == "geoshape"
     assert chart_dict["encoding"]["color"]["field"] == "slope_grade"
     assert chart_dict["encoding"]["color"]["scale"]["scheme"] == "greys"
+    assert "projection" not in chart_dict
     if tooltip is True:
         assert chart_dict["encoding"]["tooltip"] == _DEFAULT_MESH_TOOLTIP
     else:

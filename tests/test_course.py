@@ -53,3 +53,6 @@ def test_Course_from_featurecollection(augusta_national_path):
 def test_Course_chart(augusta_national):
     chart = augusta_national.chart()
     assert isinstance(chart, alt.Chart)
+    # chart_course() no longer projects itself (so it composes cleanly when
+    # layered elsewhere) - Course.chart() must apply it directly instead.
+    assert chart.to_dict()["projection"] == {"type": "identity", "reflectY": True}

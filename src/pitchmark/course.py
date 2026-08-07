@@ -166,7 +166,11 @@ class Course:
         return cls(holes, greens, tees, fairways, bunkers, rough, water, woods)
 
     def chart(self, **kwargs):
-        return chart_course(self.gdf, **kwargs).configure_legend(disable=True)
+        return (
+            chart_course(self.gdf, **kwargs)
+            .project(type="identity", reflectY=True)
+            .configure_legend(disable=True)
+        )
 
     def mask_hole(
         self,

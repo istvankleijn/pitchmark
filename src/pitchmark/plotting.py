@@ -17,6 +17,29 @@ _palette = {
 
 
 def chart_course(geodataframe, *, mode="ground_cover", tooltip=True):
+    """
+    Chart a course/hole GeoDataFrame's features, colored by ground cover.
+
+    Does not apply its own projection, so that it can be layered with
+    other unprojected charts under one shared projection instead of each
+    layer fighting over its own. If charting this on its own, follow it
+    with ``.project(type="identity", reflectY=True)`` to plot the raw
+    local x/y coordinates directly and flip the y-axis to match standard
+    screen orientation.
+
+    Parameters:
+
+    geodataframe: geopandas.GeoDataFrame
+        Must have ``ground_cover``, ``course_area``, and ``name`` columns.
+    mode: str, default "ground_cover"
+        Which column to color by. Only ``"ground_cover"`` is currently
+        implemented; any other value raises ``ValueError``.
+    tooltip: bool or list, default True
+        If True, show the default tooltip columns (``name``,
+        ``ground_cover``, ``course_area``). If False or None, disable the
+        tooltip. Otherwise, pass an explicit list of columns to show
+        instead.
+    """
     match mode:
         case "ground_cover":
             _domain = list(_palette.keys())
@@ -42,7 +65,6 @@ def chart_course(geodataframe, *, mode="ground_cover", tooltip=True):
             ),
             tooltip=tooltip,
         )
-        .project(type="identity", reflectY=True)
     )
     return course_chart
 
@@ -59,14 +81,24 @@ def chart_grade(geodataframe, *, tooltip=True):
     """
     Chart a mesh GeoDataFrame's triangles shaded by slope steepness.
 
+    Does not apply its own projection, so that it can be layered with
+    other unprojected charts under one shared projection instead of each
+    layer fighting over its own. If charting this on its own, follow it
+    with ``.project(type="identity", reflectY=True)`` to plot the raw
+    local x/y coordinates directly and flip the y-axis to match standard
+    screen orientation.
+
     Parameters:
 
     geodataframe: geopandas.GeoDataFrame
-        Must have a ``slope_grade`` column, e.g. as produced by
-        :func:`pitchmark.geom.gdf_from_mesh`.
+        Must have ``x``, ``y``, ``z``, ``slope_heading``, and
+        ``slope_grade`` columns describing each mesh triangle's location,
+        elevation, and steepness (``slope_grade`` as a percentage).
     tooltip: bool or list, default True
-        If True, show the default tooltip columns. If False or None, disable
-        the tooltip. Otherwise, an explicit list of columns to show.
+        If True, show the default tooltip columns (``x``, ``y``, ``z``,
+        ``slope_heading``, ``slope_grade``). If False or None, disable the
+        tooltip. Otherwise, pass an explicit list of columns to show
+        instead.
     """
     tooltip = _resolve_tooltip(tooltip, ["x", "y", "z", "slope_heading", "slope_grade"])
     return (
@@ -76,7 +108,6 @@ def chart_grade(geodataframe, *, tooltip=True):
             color=alt.Color("slope_grade", scale=alt.Scale(scheme="greys")),
             tooltip=tooltip,
         )
-        .project(type="identity", reflectY=True)
     )
 
 

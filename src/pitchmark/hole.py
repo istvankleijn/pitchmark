@@ -19,6 +19,7 @@ class Hole:
     def chart(self, **kwargs):
         return (
             chart_course(self.gdf, **kwargs)
+            .project(type="identity", reflectY=True)
             .properties(title=f"{self.hole_number} - {self.name}")
             .configure_legend(disable=True)
         )

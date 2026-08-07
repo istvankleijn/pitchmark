@@ -40,3 +40,6 @@ def test_Hole_init(args):
 def test_Hole_chart(azalea):
     chart = azalea.chart()
     assert isinstance(chart, alt.Chart)
+    # chart_course() no longer projects itself (so it composes cleanly when
+    # layered elsewhere) - Hole.chart() must apply it directly instead.
+    assert chart.to_dict()["projection"] == {"type": "identity", "reflectY": True}
