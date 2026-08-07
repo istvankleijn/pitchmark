@@ -81,9 +81,15 @@ class Surface:
         # opposite velocity, which is why this can't be a simple v-antiparallel drag
         # term - adapted from Penner (Can J Phys 2002) for a slope that varies
         # spatially rather than Penner's fixed slope direction.
+        #
+        # (nx, ny) points downhill (gdf_from_mesh's normal convention), so it's
+        # negated here to get the direction gravity pulls the ball. This
+        # world-to-forward/perpendicular projection is the inverse of the
+        # forward/perpendicular-to-world rotation used below for dvx/dvy, hence
+        # the opposite sign on sin_theta.
         prefactor = -g * I_b / (1.0 + I_b)
-        dv_forward = prefactor * (rho_g / I_b + nx * cos_theta - ny * sin_theta)
-        dv_perpendicular = prefactor * (nx * sin_theta + ny * cos_theta)
+        dv_forward = prefactor * (rho_g / I_b - nx * cos_theta - ny * sin_theta)
+        dv_perpendicular = prefactor * (nx * sin_theta - ny * cos_theta)
 
         dvx = dv_forward * cos_theta - dv_perpendicular * sin_theta
         dvy = dv_forward * sin_theta + dv_perpendicular * cos_theta

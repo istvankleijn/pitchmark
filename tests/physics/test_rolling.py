@@ -90,12 +90,12 @@ def test_roll_ball_flat_green_self_consistency():
 def test_simple_roll_du_sloped_regression():
     """
     Pins simple_roll_du's current output on a slope with an exactly-known
-    normal, for a ball moving straight across the slope (vx=1, vy=0).
+    normal (nx=0), for a ball moving straight across the slope (vx=1, vy=0).
 
-    This is NOT a validated physical-correctness check - which way a ball
-    should curve on a slope here is a known open question (see the comment
-    on simple_roll_du). It exists to catch regressions in the ported formula,
-    e.g. reverting to the old grade*nx double-count or wrong prefactor.
+    nx=0 here, so this can never exercise the nx-dependent terms in the
+    forward/perpendicular decomposition - test_simple_roll_du_sloped_off_axis
+    below covers those. This one still catches other regressions (e.g. the
+    old grade*nx double-count, wrong prefactor, or the ny term's sign).
     """
     gdf = _mesh_gdf([(-100, -100, 0), (100, -100, 0), (-100, 100, 50)])
     stimp_ft = 10.0
@@ -107,8 +107,69 @@ def test_simple_roll_du_sloped_regression():
     expected_dvx = -(STIMP_INIT_SPEED**2) / (
         2 * (stimp_ft / 3.0)
     )  # nx=0, pure friction
-    expected_dvy = 2 * gravity / (7 * np.sqrt(17))
+    expected_dvy = -2 * gravity / (7 * np.sqrt(17))
     assert du == pytest.approx([1.0, 0.0, expected_dvx, expected_dvy])
+
+
+def test_simple_roll_du_sloped_off_axis():
+    """
+    Pins simple_roll_du's output for a slope with a normal that has BOTH x
+    and y components, and a ball moving at an angle with both vx and vy
+    nonzero - unlike the regression test above, this actually exercises the
+    forward/perpendicular decomposition's nx-dependent cross-terms
+    (nx*sin_theta), so a reintroduced sign error there (using the same
+    rotation direction for the world-to-forward/perpendicular step as for
+    the forward/perpendicular-to-world step back in dvx/dvy, instead of its
+    inverse) would be caught here even though it isn't caught above.
+
+    Expected values are computed independently (not by re-running
+    simple_roll_du's own formula) from the triangle's exact normal
+    (via numpy.cross of its edge vectors) and the corrected
+    forward/perpendicular decomposition.
+    """
+    gdf = _mesh_gdf([(-100, -100, 0), (100, -100, 20), (-100, 100, 50)])
+    stimp_ft = 10.0
+    surf = physics.Surface(stimp_ft, gdf=gdf)
+
+    du = surf.simple_roll_du([-50.0, -50.0, 3.0, 4.0])
+
+    assert du == pytest.approx([3.0, 4.0, -0.6556808265176617, -1.2192020662941543])
+
+
+def _speed_derivative(du, vx, vy):
+    """dv/dt is only du[3]/du[2] directly when velocity is axis-aligned - in
+    general it's the directional derivative of |v|, the (dvx, dvy) component
+    along the velocity direction itself."""
+    v = np.hypot(vx, vy)
+    return (vx * du[2] + vy * du[3]) / v
+
+
+def test_simple_roll_du_downhill_accelerates_uphill_decelerates():
+    """
+    The physically load-bearing property behind the whole slope term: a ball
+    moving in the surface's downhill direction should decelerate LESS than
+    flat-ground rolling friction alone (ideally even accelerate, given enough
+    grade), and a ball moving directly uphill should decelerate MORE. This
+    caught a real bug - (nx, ny), this codebase's normal-to-triangle
+    convention (see test_Surface_normal_and_z_on_mesh), points downhill, so
+    naively adding it in the forward/perpendicular decomposition made
+    downhill motion decelerate *more*, the opposite of correct.
+    """
+    gdf = _mesh_gdf([(-100, -100, 0), (100, -100, 0), (-100, 100, 50)])
+    stimp_ft = 10.0
+    surf = physics.Surface(stimp_ft, gdf=gdf)
+    flat = physics.Surface(stimp_ft)
+
+    baseline = _speed_derivative(flat.simple_roll_du([0.0, 0.0, 0.0, 1.0]), 0.0, 1.0)
+
+    # (nx, ny) = (0, -1/sqrt(17)) here, so (0, -1) is the downhill direction.
+    downhill = _speed_derivative(
+        surf.simple_roll_du([-50.0, -50.0, 0.0, -1.0]), 0.0, -1.0
+    )
+    uphill = _speed_derivative(surf.simple_roll_du([-50.0, -50.0, 0.0, 1.0]), 0.0, 1.0)
+
+    assert downhill > baseline
+    assert uphill < baseline
 
 
 def test_roll_ball_dense_contract():
