@@ -33,17 +33,23 @@ def _mesh_gdf(vertices):
 )
 def test_chart_course(augusta_national, mode, tooltip):
     gdf = augusta_national.gdf
-    if mode != "ground_cover":
-        with pytest.raises(ValueError, match=f"{mode=} not implemented"):
-            chart = pitchmark.plotting.chart_course(gdf, mode=mode)
-        return
-
     chart = pitchmark.plotting.chart_course(gdf, mode=mode, tooltip=tooltip)
     assert isinstance(chart, alt.Chart)
 
     chart_dict = chart.to_dict()
     assert chart_dict["mark"]["type"] == "geoshape"
     assert chart_dict["encoding"]["color"]["field"] == mode
+    expected_palette = (
+        pitchmark.plotting._palette
+        if mode == "ground_cover"
+        else pitchmark.plotting._course_area_palette
+    )
+    assert chart_dict["encoding"]["color"]["scale"]["domain"] == list(
+        expected_palette.keys()
+    )
+    assert chart_dict["encoding"]["color"]["scale"]["range"] == list(
+        expected_palette.values()
+    )
     # No projection of its own - callers apply one shared projection when
     # layering chart_course with other charts (see chart_incline etc.).
     assert "projection" not in chart_dict
@@ -53,6 +59,12 @@ def test_chart_course(augusta_national, mode, tooltip):
             {"field": "ground_cover", "type": "ordinal"},
             {"field": "course_area", "type": "ordinal"},
         ]
+
+
+def test_chart_course_unknown_mode(augusta_national):
+    gdf = augusta_national.gdf
+    with pytest.raises(ValueError, match="mode='bogus' not implemented"):
+        pitchmark.plotting.chart_course(gdf, mode="bogus")
 
 
 def test_chart_course_legend(augusta_national):

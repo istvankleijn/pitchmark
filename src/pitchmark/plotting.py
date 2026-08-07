@@ -15,6 +15,14 @@ _palette = {
     "long_grass": "LimeGreen",
 }
 
+_course_area_palette = {
+    "penalty_area": "Crimson",
+    "bunker": "SandyBrown",
+    "putting_green": "MediumSeaGreen",
+    "teeing_area": "CornflowerBlue",
+    "general_area": "PaleGreen",
+}
+
 
 def chart_course(geodataframe, *, mode="ground_cover", tooltip=True, legend=True):
     """
@@ -32,8 +40,13 @@ def chart_course(geodataframe, *, mode="ground_cover", tooltip=True, legend=True
     geodataframe: geopandas.GeoDataFrame
         Must have ``ground_cover``, ``course_area``, and ``name`` columns.
     mode: str, default "ground_cover"
-        Which column to color by. Only ``"ground_cover"`` is currently
-        implemented; any other value raises ``ValueError``.
+        Which column to color by. ``"ground_cover"`` colors by physical
+        appearance (water/sand/green/short_grass/woods/long_grass).
+        ``"course_area"`` colors by Rules of Golf classification
+        (penalty_area/bunker/putting_green/teeing_area/general_area) -
+        coarser than ``ground_cover``, since fairway, woods, and rough are
+        all just "general_area" under the rules. Any other value raises
+        ``ValueError``.
     tooltip: bool or list, default True
         If True, show the default tooltip columns (``name``,
         ``ground_cover``, ``course_area``). If False or None, disable the
@@ -49,6 +62,9 @@ def chart_course(geodataframe, *, mode="ground_cover", tooltip=True, legend=True
         case "ground_cover":
             _domain = list(_palette.keys())
             _range = list(_palette.values())
+        case "course_area":
+            _domain = list(_course_area_palette.keys())
+            _range = list(_course_area_palette.values())
         case _:
             raise ValueError(f"{mode=} not implemented")
 
