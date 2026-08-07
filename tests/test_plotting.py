@@ -55,6 +55,27 @@ def test_chart_course(augusta_national, mode, tooltip):
         ]
 
 
+def test_chart_course_legend(augusta_national):
+    gdf = augusta_national.gdf
+
+    default_chart = pitchmark.plotting.chart_course(gdf)
+    assert "legend" not in default_chart.to_dict()["encoding"]["color"]
+
+    suppressed = pitchmark.plotting.chart_course(gdf, legend=False)
+    assert suppressed.to_dict()["encoding"]["color"]["legend"] is None
+
+    suppressed_none = pitchmark.plotting.chart_course(gdf, legend=None)
+    assert suppressed_none.to_dict()["encoding"]["color"]["legend"] is None
+
+    custom = pitchmark.plotting.chart_course(
+        gdf, legend=alt.Legend(orient="bottom", direction="vertical")
+    )
+    assert custom.to_dict()["encoding"]["color"]["legend"] == {
+        "orient": "bottom",
+        "direction": "vertical",
+    }
+
+
 _DEFAULT_MESH_TOOLTIP = [
     {"field": "x", "type": "quantitative"},
     {"field": "y", "type": "quantitative"},
@@ -79,6 +100,19 @@ def test_chart_grade(tooltip):
         assert chart_dict["encoding"]["tooltip"] == _DEFAULT_MESH_TOOLTIP
     else:
         assert chart_dict["encoding"]["tooltip"] == {"value": None}
+
+
+def test_chart_grade_legend():
+    gdf = _mesh_gdf([(-100, -100, 0), (100, -100, 0), (-100, 100, 50)])
+
+    default_chart = pitchmark.plotting.chart_grade(gdf)
+    assert "legend" not in default_chart.to_dict()["encoding"]["color"]
+
+    suppressed = pitchmark.plotting.chart_grade(gdf, legend=False)
+    assert suppressed.to_dict()["encoding"]["color"]["legend"] is None
+
+    custom = pitchmark.plotting.chart_grade(gdf, legend=alt.Legend(orient="bottom"))
+    assert custom.to_dict()["encoding"]["color"]["legend"] == {"orient": "bottom"}
 
 
 @pytest.mark.parametrize("tooltip", [True, False, None])
@@ -134,6 +168,28 @@ def test_chart_incline_interactive_size_max():
     size = chart_dict["encoding"]["size"]
     assert size["field"] == "slope_grade"
     assert size["scale"]["domainMax"] == {"expr": param["name"]}
+
+
+def test_chart_incline_legend():
+    gdf = _mesh_gdf([(-100, -100, 0), (100, -100, 0), (-100, 100, 50)])
+
+    default_chart = pitchmark.plotting.chart_incline(gdf)
+    assert "legend" not in default_chart.to_dict()["encoding"]["size"]
+
+    suppressed = pitchmark.plotting.chart_incline(gdf, legend=False)
+    assert suppressed.to_dict()["encoding"]["size"]["legend"] is None
+
+    custom = pitchmark.plotting.chart_incline(gdf, legend=alt.Legend(orient="bottom"))
+    assert custom.to_dict()["encoding"]["size"]["legend"] == {"orient": "bottom"}
+
+    # legend must still apply correctly alongside interactive_size_max's
+    # own scale/param wiring, not just the plain "slope_grade" shorthand.
+    combined = pitchmark.plotting.chart_incline(
+        gdf, interactive_size_max=True, legend=False
+    )
+    size = combined.to_dict()["encoding"]["size"]
+    assert size["legend"] is None
+    assert "domainMax" in size["scale"]
 
 
 def test_chart_incline_hover_and_interactive_size_max_together():
@@ -223,6 +279,36 @@ def test_chart_trajectory(tooltip):
         ]
     else:
         assert chart_dict["encoding"]["tooltip"] == {"value": None}
+
+
+def test_chart_trajectory_legend():
+    surf = physics.Surface(10.0)
+    _, sol = surf.roll_ball(0.0, 0.0, 0.0, STIMP_INIT_SPEED, dense=True)
+    df = pitchmark.plotting.trajectory_dataframe(sol, n=10)
+
+    default_chart = pitchmark.plotting.chart_trajectory(df)
+    assert "legend" not in default_chart.to_dict()["encoding"]["color"]
+
+    suppressed = pitchmark.plotting.chart_trajectory(df, legend=False)
+    assert suppressed.to_dict()["encoding"]["color"]["legend"] is None
+
+    custom = pitchmark.plotting.chart_trajectory(
+        df, legend=alt.Legend(orient="bottom", direction="horizontal")
+    )
+    assert custom.to_dict()["encoding"]["color"]["legend"] == {
+        "orient": "bottom",
+        "direction": "horizontal",
+    }
+
+
+def test_chart_trajectories_legend_passthrough():
+    surf = physics.Surface(10.0)
+    _, sol = surf.roll_ball(0.0, 0.0, 0.0, STIMP_INIT_SPEED, dense=True)
+    df = pitchmark.plotting.trajectory_dataframe(sol, n=5)
+
+    chart = pitchmark.plotting.chart_trajectories([df], legend=False)
+    (layer,) = chart.to_dict()["layer"]
+    assert layer["encoding"]["color"]["legend"] is None
 
 
 def test_chart_trajectories():

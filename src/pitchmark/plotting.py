@@ -16,7 +16,7 @@ _palette = {
 }
 
 
-def chart_course(geodataframe, *, mode="ground_cover", tooltip=True):
+def chart_course(geodataframe, *, mode="ground_cover", tooltip=True, legend=True):
     """
     Chart a course/hole GeoDataFrame's features, colored by ground cover.
 
@@ -39,6 +39,11 @@ def chart_course(geodataframe, *, mode="ground_cover", tooltip=True):
         ``ground_cover``, ``course_area``). If False or None, disable the
         tooltip. Otherwise, pass an explicit list of columns to show
         instead.
+    legend: bool or altair.Legend, default True
+        If True, show the default legend. If False or None, suppress it -
+        useful when combining several charts and relocating one shared
+        legend elsewhere. Otherwise, an explicit ``altair.Legend`` to
+        control its position, orientation, or layout directly.
     """
     match mode:
         case "ground_cover":
@@ -62,6 +67,7 @@ def chart_course(geodataframe, *, mode="ground_cover", tooltip=True):
                     domain=_domain,
                     range=_range,
                 ),
+                **_resolve_legend(legend),
             ),
             tooltip=tooltip,
         )
@@ -77,7 +83,15 @@ def _resolve_tooltip(tooltip, columns):
     return tooltip
 
 
-def chart_grade(geodataframe, *, tooltip=True):
+def _resolve_legend(legend):
+    if legend is True:
+        return {}
+    elif legend in (False, None):
+        return {"legend": None}
+    return {"legend": legend}
+
+
+def chart_grade(geodataframe, *, tooltip=True, legend=True):
     """
     Chart a mesh GeoDataFrame's triangles shaded by slope steepness.
 
@@ -99,20 +113,34 @@ def chart_grade(geodataframe, *, tooltip=True):
         ``slope_heading``, ``slope_grade``). If False or None, disable the
         tooltip. Otherwise, pass an explicit list of columns to show
         instead.
+    legend: bool or altair.Legend, default True
+        If True, show the default legend. If False or None, suppress it -
+        useful when combining several charts and relocating one shared
+        legend elsewhere. Otherwise, an explicit ``altair.Legend`` to
+        control its position, orientation, or layout directly.
     """
     tooltip = _resolve_tooltip(tooltip, ["x", "y", "z", "slope_heading", "slope_grade"])
     return (
         alt.Chart(geodataframe)
         .mark_geoshape()
         .encode(
-            color=alt.Color("slope_grade", scale=alt.Scale(scheme="greys")),
+            color=alt.Color(
+                "slope_grade",
+                scale=alt.Scale(scheme="greys"),
+                **_resolve_legend(legend),
+            ),
             tooltip=tooltip,
         )
     )
 
 
 def chart_incline(
-    geodataframe, *, tooltip=True, hover=False, interactive_size_max=False
+    geodataframe,
+    *,
+    tooltip=True,
+    hover=False,
+    interactive_size_max=False,
+    legend=True,
 ):
     """
     Chart a mesh GeoDataFrame's triangles as wedge markers pointing downslope.
@@ -138,6 +166,12 @@ def chart_incline(
         the ``slope_grade`` size scale's upper bound - useful when a few
         very steep triangles (e.g. bunker edges) would otherwise dominate
         the size scale and hide subtler slopes elsewhere.
+    legend: bool or altair.Legend, default True
+        If True, show the default ``slope_grade`` size legend. If False or
+        None, suppress it - useful when combining several charts and
+        relocating one shared legend elsewhere. Otherwise, an explicit
+        ``altair.Legend`` to control its position, orientation, or layout
+        directly.
     """
     tooltip = _resolve_tooltip(tooltip, ["x", "y", "z", "slope_heading", "slope_grade"])
     mark_kwargs = {"shape": "wedge", "filled": True, "clip": True}
@@ -158,6 +192,7 @@ def chart_incline(
     else:
         mark_kwargs["color"] = "DarkViolet"
 
+    size_kwargs = _resolve_legend(legend)
     if interactive_size_max:
         grade_max = alt.param(
             value=float(geodataframe["slope_grade"].quantile(0.9)),
@@ -169,9 +204,13 @@ def chart_incline(
             ),
         )
         params.append(grade_max)
-        encoding["size"] = alt.Size("slope_grade", scale=alt.Scale(domainMax=grade_max))
+        encoding["size"] = alt.Size(
+            "slope_grade", scale=alt.Scale(domainMax=grade_max), **size_kwargs
+        )
     else:
-        encoding["size"] = "slope_grade"
+        encoding["size"] = (
+            "slope_grade" if not size_kwargs else alt.Size("slope_grade", **size_kwargs)
+        )
 
     chart = alt.Chart(geodataframe).mark_point(**mark_kwargs).encode(**encoding)
     if params:
@@ -217,7 +256,7 @@ def trajectory_dataframe(sol, *, dt=0.04, n=None):
     )
 
 
-def chart_trajectory(trajectory_df, *, tooltip=True):
+def chart_trajectory(trajectory_df, *, tooltip=True, legend=True):
     """
     Chart a ball's trajectory as points colored by speed.
 
@@ -233,6 +272,12 @@ def chart_trajectory(trajectory_df, *, tooltip=True):
     tooltip: bool or list, default True
         If True, show the default tooltip columns. If False or None, disable
         the tooltip. Otherwise, an explicit list of columns to show.
+    legend: bool or altair.Legend, default True
+        If True, show the default ``v`` (speed) legend. If False or None,
+        suppress it - useful when combining several charts and relocating
+        one shared legend elsewhere. Otherwise, an explicit
+        ``altair.Legend`` to control its position, orientation, or layout
+        directly.
     """
     tooltip = _resolve_tooltip(tooltip, ["t", "x", "y", "v"])
     return (
@@ -241,7 +286,9 @@ def chart_trajectory(trajectory_df, *, tooltip=True):
         .encode(
             longitude="x",
             latitude="y",
-            color=alt.Color("v", scale=alt.Scale(scheme="oranges")),
+            color=alt.Color(
+                "v", scale=alt.Scale(scheme="oranges"), **_resolve_legend(legend)
+            ),
             tooltip=tooltip,
         )
     )
